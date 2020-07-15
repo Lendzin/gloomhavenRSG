@@ -1,0 +1,103 @@
+import {tokenPath} from '../config'
+const fileFormat = '.png'
+const aspectRatio = 4.8
+const drawCoords = {x: 0, y: 0}
+
+export const EmptySlots = {
+  slot1: {
+    id: 'slot1',
+    location: `${tokenPath}slot1${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot2: {
+    id: 'slot2',
+    location: `${tokenPath}slot2${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot3: {
+    id: 'slot3',
+    location: `${tokenPath}slot3${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot4: {
+    id: 'slot4',
+    location: `${tokenPath}slot4${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot5: {
+    id: 'slot5',
+    location: `${tokenPath}slot5${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot6: {
+    id: 'slot6',
+    location: `${tokenPath}slot6${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot7: {
+    id: 'slot7',
+    location: `${tokenPath}slot7${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot8: {
+    id: 'slot8',
+    location: `${tokenPath}slot8${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot9: {
+    id: 'slot9',
+    location: `${tokenPath}slot9${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot10: {
+    id: 'slot10',
+    location: `${tokenPath}slot10${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot11: {
+    id: 'slot11',
+    location: `${tokenPath}slot11${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+  slot12: {
+    id: 'slot12',
+    location: `${tokenPath}slot12${fileFormat}`,
+    aspectRatio,
+    drawCoords,
+    itemType: 'token',
+    material: 'none',
+  },
+}
