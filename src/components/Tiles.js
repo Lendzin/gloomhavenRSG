@@ -12,7 +12,6 @@ export const Tiles = {
     aspectRatio: 1.86,
     drawCoords: tileStart,
     gridCubeCoords: TileCubeCoords.ATile,
-    itemType: 'tile',
     material: 'stone',
   },
   A1b: {
@@ -22,7 +21,6 @@ export const Tiles = {
     aspectRatio: 1.88,
     drawCoords: tileStart,
     gridCubeCoords: TileCubeCoords.ATile,
-    itemType: 'tile',
     material: 'wood',
   },
   A2a: {
@@ -32,7 +30,6 @@ export const Tiles = {
     aspectRatio: 1.86,
     drawCoords: {x: tileStart.x - 29, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.ATile,
-    itemType: 'tile',
     material: 'stone',
   },
   A3b: {
@@ -42,7 +39,6 @@ export const Tiles = {
     aspectRatio: 1.88,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.ATile,
-    itemType: 'tile',
     material: 'stone',
   },
 
@@ -54,7 +50,6 @@ export const Tiles = {
     aspectRatio: 1.86,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.BTile,
-    itemType: 'tile',
     material: 'wood',
   },
   B2b: {
@@ -64,7 +59,6 @@ export const Tiles = {
     aspectRatio: 1.86,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.BTile,
-    itemType: 'tile',
     material: 'stone',
   },
 
@@ -76,8 +70,15 @@ export const Tiles = {
     aspectRatio: 3.75,
     drawCoords: {x: tileStart.x - 55, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.CTile,
-
-    itemType: 'tile',
+    material: 'wood',
+  },
+  C1b_rotated: {
+    id: 'C1b_rotated',
+    location: `${tilePath}rotated_C1b_W${fileFormat}`,
+    startHexCoords: {x: 219, y: 214},
+    aspectRatio: 3.75,
+    drawCoords: {x: tileStart.x - 55, y: tileStart.y - 29},
+    gridCubeCoords: TileCubeCoords.CTile_rotated,
     material: 'wood',
   },
 
@@ -89,8 +90,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 55, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.DTile,
-
-    itemType: 'tile',
     material: 'ice',
   },
 
@@ -102,7 +101,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 28},
     gridCubeCoords: TileCubeCoords.ETile,
-    itemType: 'tile',
     material: 'ice',
   },
 
@@ -114,7 +112,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 108},
     gridCubeCoords: TileCubeCoords.FTile,
-    itemType: 'tile',
     material: 'stone',
   },
   F1b: {
@@ -124,7 +121,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 108},
     gridCubeCoords: TileCubeCoords.FTile,
-    itemType: 'tile',
     material: 'earth',
   },
 
@@ -136,7 +132,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 10},
     gridCubeCoords: TileCubeCoords.GTile,
-    itemType: 'tile',
     material: 'earth',
   },
   G2b: {
@@ -146,7 +141,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 10},
     gridCubeCoords: TileCubeCoords.GTile,
-    itemType: 'tile',
     material: 'wood',
   },
 
@@ -158,7 +152,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 10},
     gridCubeCoords: TileCubeCoords.HTile,
-    itemType: 'tile',
     material: 'stone',
   },
   H2b: {
@@ -168,7 +161,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 10},
     gridCubeCoords: TileCubeCoords.HTile,
-    itemType: 'tile',
     material: 'earth',
   },
 
@@ -180,7 +172,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 30},
     gridCubeCoords: TileCubeCoords.ITile,
-    itemType: 'tile',
     material: 'wood',
   },
 
@@ -192,7 +183,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.JTileA,
-    itemType: 'tile',
     material: 'stone',
   },
   J1b: {
@@ -202,7 +192,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.JTileB,
-    itemType: 'tile',
     material: 'ice',
   },
 
@@ -214,7 +203,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 29, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.KTile,
-    itemType: 'tile',
     material: 'ice',
   },
   K2b: {
@@ -224,7 +212,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 29, y: tileStart.y - 29},
     gridCubeCoords: TileCubeCoords.KTile,
-    itemType: 'tile',
     material: 'stone',
   },
 
@@ -236,7 +223,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 30},
     gridCubeCoords: TileCubeCoords.LTile,
-    itemType: 'tile',
     material: 'stone',
   },
   L3a: {
@@ -246,7 +232,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 30},
     gridCubeCoords: TileCubeCoords.LTile,
-    itemType: 'tile',
     material: 'earth',
   },
 
@@ -258,7 +243,6 @@ export const Tiles = {
     aspectRatio: 1.87,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 30},
     gridCubeCoords: TileCubeCoords.MTile,
-    itemType: 'tile',
     material: 'stone',
   },
   M1b: {
@@ -268,7 +252,6 @@ export const Tiles = {
     aspectRatio: 1.88,
     drawCoords: {x: tileStart.x - 10, y: tileStart.y - 30},
     gridCubeCoords: TileCubeCoords.MTile,
-    itemType: 'tile',
     material: 'earth',
   },
 }

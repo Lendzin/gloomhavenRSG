@@ -16,8 +16,21 @@ body {
 }
 .controls {
   position: absolute;
+  margin-left: 80em;
+  margin-top: 10em;
+  width: 100%;
   top: 0;
   left: 0;
+}
+#players {
+  position: relative;
+  width: 15em;
+}
+#combined-card-name {
+  width: 30em;
+}
+#cubecoords-buttons {
+  width: 30em;
 }
 button {
   height: 3em;
@@ -28,17 +41,39 @@ button {
   text-transform: uppercase;
   cursor: pointer;
   color: white;
-  border: 1px solid white;
+  border: 0.1em solid white;
   background-color: black;
 }
+.cubecoords-button {
+  height: 3em;
+  width: 12em;
+}
+
+#stack {
+  position: relative;
+}
+#stack > canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
 button:hover {
   color: black;
-  background-color: #00baff;
+  background-color: #9cf058;
 }
 button:focus {
-  border: 1px solid #00baff;
+  border: 0.1em solid #9cf058;
 }
 button:active {
   background-color: #1f1f1f;
   color: white;
+}
+
+@font-face {
+  font-family: Pirata One;
+  font-style: normal;
+  font-weight: 400;
+  src: url('http://localhost:3000/creator_pack/Font/PirataOne-Gloomhaven.tff')
+    format('truetype');
 }
