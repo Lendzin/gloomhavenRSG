@@ -1,26 +1,36 @@
 import React, {useState, useEffect, useRef} from 'react'
 import './App.css'
-import {hexagonSize} from './config'
-import {ScenarioCards} from './components/ScenarioCards'
-import {MonsterCards} from './components/MonsterCards'
+import {
+  getDrawCoords,
+  clickToCubeCoords,
+  copyObject,
+  allWordsStringUpperCase,
+  scale,
+} from './components/Helpers'
+import {drawScenarioCard} from './components/ScenarioCards'
+import {drawMonsterCard} from './components/MonsterCards'
+import {getCornersForHexagon} from './components/Helpers'
 
-const nextPointHexagon = (center, size, i) => {
-  var angle_deg = 60 * i - 30
-  var angle_rad = (Math.PI / 180) * angle_deg
-  let x = center.x + size * Math.cos(angle_rad)
-  let y = center.y + size * Math.sin(angle_rad)
-  return {x, y}
+const drawOutlineHexagon = (ctx, drawCoords, color, offset) => {
+  let corners = getCornersForHexagon(drawCoords)
+  ctx.beginPath()
+  corners.forEach((corner, index) => {
+    if (offset) {
+      corner.x += offset.x
+      corner.y += offset.y
+    }
+    if (index === 0) {
+      ctx.lineTo(corner.x, corner.y)
+      ctx.moveTo(corner.x, corner.y)
+    } else {
+      ctx.lineTo(corner.x, corner.y)
+      ctx.strokeStyle = color
+      ctx.lineWidth = 4
+    }
+  })
+  ctx.closePath()
+  ctx.stroke()
 }
-const getCornersFor = (center) => {
-  let loc = 0
-  let corners = []
-  for (let i = 6; i > 0; i--) {
-    loc = nextPointHexagon(center, hexagonSize - 3, i)
-    corners.push(loc)
-  }
-  return corners
-}
-
 const drawHexagonForCorners = (corners, ctx, color, offset) => {
   ctx.beginPath()
   corners.forEach((corner, index) => {
@@ -43,8 +53,6 @@ function coordinateCheck(ctx, tile, offset) {
   tile.gridCubeCoords.forEach((cubeCoord) => {
     if (cubeCoord.r + cubeCoord.g + cubeCoord.b === 0) {
       let drawCoords = getDrawCoords(cubeCoord, tile.startHexCoords)
-      // let corners = getCornersFor(drawCoords)
-      // drawHexagonForCorners(corners, ctx, offset)
       ctx.font = '20px Arial'
       ctx.fillStyle = 'yellow'
       ctx.textAlign = 'center'
@@ -55,18 +63,6 @@ function coordinateCheck(ctx, tile, offset) {
       )
     }
   })
-}
-
-function getDrawCoords(hexCubeCoords, startHexCoords) {
-  let drawCoords = JSON.parse(JSON.stringify(startHexCoords))
-  const hexagonHeight = hexagonSize * 2
-  const hexagonWidth = Math.sqrt(3) * hexagonSize
-
-  drawCoords.x += hexCubeCoords.r * hexagonWidth
-  drawCoords.x += (hexCubeCoords.g * hexagonWidth) / 2
-  drawCoords.y += (hexCubeCoords.g * hexagonHeight * 3) / 4
-
-  return drawCoords
 }
 
 function loadImage(imagePath) {
@@ -82,38 +78,84 @@ function loadImage(imagePath) {
   })
 }
 
-const getRandomFromObject = (object) => {
-  return object[
-    Object.keys(object)[
-      Math.floor(Math.random() * Math.floor(Object.keys(object).length))
-    ]
-  ]
+const validatePlayers = (players) => {
+  return players === 5 ? 4 : players === 1 ? 2 : players
 }
 
 function App() {
   const canvasRef = useRef(null)
   const canvasRefItems = useRef(null)
+  const canvasRefOverlay = useRef(null)
 
+  const [width, setWidth] = useState(window.innerWidth)
+  const [height, setHeight] = useState(window.innerHeight)
+
+  const updateWidthAndHeight = () => {
+    setWidth(window.innerWidth)
+    setHeight(window.innerHeight)
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', updateWidthAndHeight)
+    return () => window.removeEventListener('resize', updateWidthAndHeight)
+  })
+  useEffect(() => {
+    window.addEventListener('onresize', updateWidthAndHeight)
+    return () => window.removeEventListener('onresize', updateWidthAndHeight)
+  })
+
+  const getContextScaledCanvas = (canvas) => {
+    let ctx = canvas.getContext('2d')
+    ctx.scale(scale, scale)
+    return ctx
+  }
+
+  const [room, setRoom] = useState(1)
+  const [usedScenarioCards, setUsedScenarioCards] = useState([])
+  const [usedMonsterCards, setUsedMonsterCards] = useState([])
+  const [triggeredItem, setTriggeredItem] = useState('No Item')
+  const [mouseLocation, setMouseLocation] = useState({x: 0, y: 0})
+  const [exit, setExit] = useState('')
+  const [modalState, setModalState] = useState(false)
   const [players, setPlayers] = useState(2)
-  const [monsterCard, setMonsterCard] = useState(
-    getRandomFromObject(MonsterCards)
+  const [openMenu, setOpenMenu] = useState(false)
+  const addCardToUsed = (card) => {
+    if (card.Tiles) {
+      setUsedScenarioCards([...usedScenarioCards, card.id])
+    } else {
+      setUsedMonsterCards([...usedMonsterCards, card.id])
+    }
+    return card
+  }
+
+  const [monsterCard, setMonsterCard] = useState(() =>
+    addCardToUsed(drawMonsterCard())
   )
-  const [scenarioCard, setScenarioCard] = useState(
-    getRandomFromObject(ScenarioCards)
+  const [scenarioCard, setScenarioCard] = useState(() =>
+    addCardToUsed(drawScenarioCard())
   )
 
   const [drawCubeCoords, setDrawCubeCoords] = useState(false)
+  const [exits, setExits] = useState([])
 
   const drawHexagon = (ctx, drawCoords, color, offset) => {
-    let corners = getCornersFor(drawCoords)
+    let corners = getCornersForHexagon(drawCoords)
     drawHexagonForCorners(corners, ctx, color, offset)
+  }
+
+  const isCardUsed = (card) => {
+    if (card.Tiles) {
+      return usedScenarioCards.includes(card.id)
+    } else {
+      return usedMonsterCards.includes(card.id)
+    }
   }
 
   const drawTiles = (ctx) => {
     let tiles = [...scenarioCard.Tiles]
     let tileSources = []
     tiles.forEach((tile) => {
-      const mapImage = JSON.parse(JSON.stringify(tile.Map))
+      const mapImage = copyObject(tile.Map)
       mapImage.offset = tile.offset
       tileSources.push(mapImage)
     })
@@ -123,10 +165,12 @@ function App() {
       .then((images) => {
         images.forEach((image, index) => {
           const {aspectRatio, drawCoords, offset} = tileSources[index]
+          let drawXCoord = drawCoords.x + offset.x
+          let drawYCoord = drawCoords.y + offset.y
           ctx.drawImage(
             image,
-            drawCoords.x + offset.x,
-            drawCoords.y + offset.y,
+            drawXCoord,
+            drawYCoord,
             image.width / aspectRatio,
             image.height / aspectRatio
           )
@@ -138,36 +182,42 @@ function App() {
   }
 
   const drawTileContent = (ctx) => {
-    console.log('draw')
     let imageSources = []
     const tiles = scenarioCard.Tiles
     tiles.forEach((tile) => {
       tile.staticRender.forEach((resource) => {
-        let token = JSON.parse(JSON.stringify(resource.token))
+        let newToken = copyObject(resource.token)
         const items = getItemsToRender()
         items.forEach((item, index) => {
-          if (token.id === `slot${index + 1}`) {
-            let newItem = JSON.parse(JSON.stringify(item))
-            token = newItem.token
-            token.frame = newItem.frame
+          if (newToken.id === `slot${index + 1}`) {
+            let newItem = copyObject(item)
+            newToken = newItem.token
+            newToken.frame = newItem.frame
           }
         })
 
-        token.drawCoords = getDrawCoords(
+        let drawCoords = getDrawCoords(
           resource.cubeCoord,
           tile.Map.startHexCoords
         )
-        token.offset = tile.offset
-
-        imageSources.push(token)
+        newToken.drawCoords = drawCoords
+        newToken.offset = tile.offset
+        newToken.cubeCoord = resource.cubeCoord
+        imageSources.push(newToken)
       })
     })
     Promise.all(
       imageSources.map((imageSource) => loadImage(imageSource.location))
     )
       .then((images) => {
+        let exitsInsideImages = []
         images.forEach((image, index) => {
-          const {aspectRatio, drawCoords, frame, offset} = imageSources[index]
+          const {aspectRatio, drawCoords, frame, offset, id} = imageSources[
+            index
+          ]
+          if (id.includes('exit')) {
+            exitsInsideImages.push(imageSources[index])
+          }
           if (frame === 'elite') {
             drawHexagon(ctx, drawCoords, 'yellow', offset)
           } else if (frame === 'normal') {
@@ -181,6 +231,7 @@ function App() {
             image.height / aspectRatio
           )
         })
+        setExits([...exitsInsideImages])
       })
       .catch((err) => {
         console.error(err)
@@ -195,59 +246,201 @@ function App() {
   }
 
   const getItemsToRender = () => {
-    return monsterCard[`players${players}`]
+    return copyObject(monsterCard[`players${players}`])
   }
-  const validatePlayers = (amount) => {
-    return amount === 5 ? 4 : amount === 1 ? 2 : amount
+
+  const generateNextMap = () => {
+    if (room + 1 < 4) {
+      let exitText = exit.toUpperCase()
+      let sCard = drawScenarioCard()
+      let card = 20
+      while (!sCard.entries.includes(exitText) || isCardUsed(sCard)) {
+        sCard = drawScenarioCard()
+        if (card === 0) {
+          break
+        }
+        card--
+      }
+
+      card = 20
+      resetModal()
+      let mCard = drawMonsterCard()
+      while (isCardUsed(mCard)) {
+        mCard = drawMonsterCard()
+        if (card === 0) {
+          break
+        }
+        card--
+      }
+
+      addCardToUsed(mCard)
+      setMonsterCard(mCard)
+      addCardToUsed(sCard)
+      setScenarioCard(sCard)
+      setRoom(room + 1)
+    } else {
+      resetModal()
+      setTriggeredItem(
+        <>
+          <p>Congratulations!</p>
+          <p>You finished!</p>
+          <button onClick={() => resetApplication()}>Restart</button>
+        </>
+      )
+      setModalState(true)
+    }
   }
 
   useEffect(() => {
     const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    const ctx = getContextScaledCanvas(canvas)
+    ctx.clearRect(0, 0, width, height)
     drawTiles(ctx)
-  }, [monsterCard, scenarioCard])
+  }, [monsterCard, scenarioCard, width, height])
 
   useEffect(() => {
-    const canvasItems = canvasRefItems.current
-    const ctxitems = canvasItems.getContext('2d')
-    ctxitems.clearRect(0, 0, canvasItems.width, canvasItems.height)
+    const canvas = canvasRefItems.current
+    const ctxitems = getContextScaledCanvas(canvas)
+    ctxitems.clearRect(0, 0, width, height)
     drawTileContent(ctxitems)
-  }, [monsterCard, scenarioCard, players, drawCubeCoords])
+  }, [monsterCard, scenarioCard, players, drawCubeCoords, width, height])
 
-  const handleCanvasClick = (x, y) => {
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    let center = {x, y}
-    console.log(center.x, center.y)
+  const handleCanvasClick = (xIn, yIn) => {
+    scenarioCard.Tiles.forEach((tile) => {
+      let currentX = xIn
+      let currentY = yIn
+      let hexCoords = copyObject(tile.Map.startHexCoords)
+      hexCoords.x += tile.offset.x
+      hexCoords.y += tile.offset.y
+
+      const cubeCoords = clickToCubeCoords(hexCoords, currentX, currentY)
+      const canvas = canvasRefOverlay.current
+      const ctxOverlay = getContextScaledCanvas(canvas)
+
+      Object.values(tile.staticRender).forEach((value) => {
+        if (JSON.stringify(value.cubeCoord) === JSON.stringify(cubeCoords)) {
+          let items = getItemsToRender()
+          let id = value.token.id
+          id = Number(id.slice('slot'.length, id.length))
+          if (id) {
+            id--
+            let item = items[id]
+            let {frame, token} = item
+            let itemId = token.id
+            let newStr = allWordsStringUpperCase(itemId)
+            let color = 'white'
+            if (frame === 'none') {
+              if (newStr.includes('Treasure')) {
+                monsterCard.Effects.forEach((effect) => {
+                  if (effect.text.includes('Treasure')) {
+                    newStr = effect.text
+                    color = '#f5d742'
+                  }
+                })
+              } else if (newStr.includes('Trap')) {
+                monsterCard.Effects.forEach((effect) => {
+                  if (effect.text.includes('trap')) {
+                    newStr = effect.text
+                    color = '#f57242'
+                  }
+                })
+              }
+            }
+
+            if (frame === 'elite') {
+              color = 'yellow'
+            }
+            setTriggeredItem(
+              <>
+                <p style={{color: color}}>{newStr}</p>
+                {frame === 'none' ? (
+                  <></>
+                ) : (
+                  <p style={{color: color}}>{allWordsStringUpperCase(frame)}</p>
+                )}
+              </>
+            )
+          } else {
+            let item = allWordsStringUpperCase(value.token.id).split(' ')[0]
+            setTriggeredItem(
+              <>
+                <p>{item}</p>
+              </>
+            )
+          }
+          setModalState(true)
+
+          let drawCoords = getDrawCoords(cubeCoords, hexCoords)
+
+          drawOutlineHexagon(ctxOverlay, drawCoords, 'black', {x: 0, y: 0})
+          exits.forEach((exit) => {
+            if (JSON.stringify(exit.cubeCoord) === JSON.stringify(cubeCoords)) {
+              setModalState(true)
+              setExit(exit.id.slice(-1))
+            }
+          })
+        }
+      })
+    })
   }
 
+  const triggerOpenMenu = () => {
+    resetModal()
+    setOpenMenu(!openMenu)
+  }
+
+  const resetModal = () => {
+    setModalState(false)
+    setExit('')
+    const canvas = canvasRefOverlay.current
+    const ctxOverlay = getContextScaledCanvas(canvas)
+    ctxOverlay.clearRect(0, 0, width, height)
+  }
+
+  const resetApplication = () => {
+    setRoom(1)
+    setUsedMonsterCards([])
+    setUsedMonsterCards([])
+    setMonsterCard(addCardToUsed(drawMonsterCard()))
+    setScenarioCard(addCardToUsed(drawScenarioCard()))
+    setModalState(false)
+  }
+
+  const menuOpen = openMenu ? {} : {display: 'none'}
+
+  const modalOpen = modalState
+    ? {left: mouseLocation.x, top: mouseLocation.y}
+    : {display: 'none'}
   return (
     <>
-      <div id='stack'>
-        <canvas
-          ref={canvasRef}
-          width={window.innerWidth}
-          height={window.innerHeight}
-          onClick={(event) => {
-            const x = event.clientX
-            const y = event.clientY
-            // handleCanvasClick(x, y)
-          }}
-        ></canvas>
-        <canvas
-          ref={canvasRefItems}
-          width={window.innerWidth}
-          height={window.innerHeight}
-          onClick={(event) => {
-            const x = event.clientX
-            const y = event.clientY
-            handleCanvasClick(x, y)
-          }}
-        ></canvas>
+      {width > 0 && height > 0 ? (
+        <div id='stack'>
+          <canvas ref={canvasRef} width={width} height={height}></canvas>
+          <canvas ref={canvasRefItems} width={width} height={height}></canvas>
+          <canvas
+            ref={canvasRefOverlay}
+            width={width}
+            height={height}
+            onMouseDown={(event) => {
+              const x = event.clientX
+              const y = event.clientY
+              console.log(width, height)
+              setMouseLocation({x: x, y: y})
+              resetModal()
+              handleCanvasClick(x, y)
+            }}
+          ></canvas>
+        </div>
+      ) : (
+        <>Loading..</>
+      )}
+
+      <div id='menu' style={menuOpen}>
         <div className='controls'>
           <div id='combined-card-name'>
-            {`Map: ${monsterCard.id} ${scenarioCard.id}`}
+            <p
+              style={{fontSize: '1.5em'}}
+            >{`Room ${room}: ${monsterCard.id} ${scenarioCard.id}`}</p>
           </div>
           <div id='players'>
             Players:
@@ -259,7 +452,35 @@ function App() {
               -
             </button>
           </div>
-          <div id='cubecoords-buttons'>
+          <div id='extras_and_effects'>
+            {scenarioCard ? (
+              <div>
+                <p style={{color: '#6db000'}}>Minor: {scenarioCard.minor}</p>{' '}
+                <p style={{color: '#02acb5'}}>Major: {scenarioCard.major}</p>
+              </div>
+            ) : (
+              <></>
+            )}
+            <div style={{height: '0.5em'}}> </div>
+            {monsterCard ? (
+              <div>
+                {monsterCard.Effects.map((effect) => {
+                  const color = effect.text.includes('trap')
+                    ? '#f57242'
+                    : '#f5d742'
+                  return (
+                    <p key={effect.text} style={{color: color}}>
+                      {effect.text}
+                    </p>
+                  )
+                })}
+              </div>
+            ) : (
+              <></>
+            )}
+            <button onClick={() => triggerOpenMenu()}>Close</button>
+          </div>
+          <div id='cubecoords-buttons' style={{display: 'none'}}>
             <button
               className='cubecoords-button'
               disabled={drawCubeCoords}
@@ -275,6 +496,32 @@ function App() {
               Remove CubeCoords
             </button>
           </div>
+        </div>
+      </div>
+      <button
+        id='menu_button'
+        onClick={() => {
+          triggerOpenMenu()
+        }}
+      >
+        MENU
+      </button>
+
+      <div id='myModal' className='modal' style={modalOpen}>
+        <div className='modal-content'>
+          {exit === '' ? (
+            <>{triggeredItem}</>
+          ) : (
+            <>
+              <p>Exit at {exit.toLocaleUpperCase()}?</p>
+              <button onClick={() => generateNextMap()} id='nextmap_button'>
+                YES
+              </button>
+              <button onClick={() => resetModal()} id='nextmap_button'>
+                NO
+              </button>
+            </>
+          )}
         </div>
       </div>
     </>

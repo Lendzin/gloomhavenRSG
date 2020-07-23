@@ -1,7 +1,5 @@
 export const Extras = {
-  bear_trap_damage_immobilize: {
-    text: 'Bear trap: Damage and immobilize',
-  },
+  //TREASURES
   treasure_cureallnegcond: {
     text: 'Treasure: Cure all negative conditions',
   },
@@ -21,36 +19,45 @@ export const Extras = {
     text: 'Treasure: Refresh 2 small items',
   },
   treasure_poison_all_enemies: {
-    text: 'Poison all enemies',
+    text: 'Treasure: Poison all enemies',
   },
-  spike_trap_poison_damage: {
-    text: 'Spike trap: Poison and damage',
+  treasure_enemies_suffer_2dmg: {
+    text: 'Treasure: All Enemies suffer 2 damage',
   },
-  spike_trap_stun_damage: {
-    text: 'Spike trap: Stun and damage',
-  },
-  poison_trap_poison_immobilize: {
-    text: 'Poison trap: Poison and immobilize',
-  },
+
+  //BEAR TRAPS
   bear_trap_damage: {
     text: 'Bear trap: Damage',
   },
-  spike_trap_disarm: {
-    text: 'Spike trap: Disarm',
+  bear_trap_damage_immobilize: {
+    text: 'Bear trap: Damage and immobilize',
   },
+
+  //POISON TRAPS
   poison_trap_muddle_damage: {
     text: 'Poison trap: Muddle and damage',
   },
   poison_trap_stun_poison: {
     text: 'Poison trap: Stun and poison',
   },
-  treasure_enemies_suffer_2dmg: {
-    text: 'All Enemies suffer 2 damage',
+  poison_trap_poison_immobilize: {
+    text: 'Poison trap: Poison and immobilize',
+  },
+
+  //SPIKE TRAPS
+  spike_trap_disarm: {
+    text: 'Spike trap: Disarm',
   },
   spike_trap_wound_poison: {
     text: 'Spike trap: Wound and poison',
   },
   spike_trap_wound_disarm: {
     text: 'Spike trap: Wound and disarm',
+  },
+  spike_trap_poison_damage: {
+    text: 'Spike trap: Poison and damage',
+  },
+  spike_trap_stun_damage: {
+    text: 'Spike trap: Stun and damage',
   },
 }

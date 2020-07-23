@@ -1,6 +1,7 @@
 import {tokenPath} from '../config'
 const fileFormat = '.png'
 const drawCoords = {x: 0, y: 0}
+
 export const Tokens = {
   altar: {
     id: 'altar',
@@ -16,30 +17,58 @@ export const Tokens = {
     drawCoords,
     itemType: 'token',
   },
-  entrance_left: {
-    id: 'entrance_left',
-    location: `${tokenPath}entrance_left${fileFormat}`,
+  entrance_left_a: {
+    id: 'entrance_left_a',
+    location: `${tokenPath}entrance_left_a${fileFormat}`,
     aspectRatio: 5,
     drawCoords,
     itemType: 'token',
   },
-  entrance_right: {
-    id: 'entrance_right',
-    location: `${tokenPath}entrance_right${fileFormat}`,
+  entrance_right_a: {
+    id: 'entrance_right_a',
+    location: `${tokenPath}entrance_right_a${fileFormat}`,
     aspectRatio: 5,
     drawCoords,
     itemType: 'token',
   },
-  exit_right: {
-    id: 'exit_right',
-    location: `${tokenPath}exit_right${fileFormat}`,
+  entrance_left_b: {
+    id: 'entrance_left_b',
+    location: `${tokenPath}entrance_left_b${fileFormat}`,
     aspectRatio: 5,
     drawCoords,
     itemType: 'token',
   },
-  exit_left: {
-    id: 'exit_left',
-    location: `${tokenPath}exit_left${fileFormat}`,
+  entrance_right_b: {
+    id: 'entrance_right_b',
+    location: `${tokenPath}entrance_right_b${fileFormat}`,
+    aspectRatio: 5,
+    drawCoords,
+    itemType: 'token',
+  },
+  exit_right_a: {
+    id: 'exit_right_a',
+    location: `${tokenPath}exit_right_a${fileFormat}`,
+    aspectRatio: 5,
+    drawCoords,
+    itemType: 'token',
+  },
+  exit_left_a: {
+    id: 'exit_left_a',
+    location: `${tokenPath}exit_left_a${fileFormat}`,
+    aspectRatio: 5,
+    drawCoords,
+    itemType: 'token',
+  },
+  exit_right_b: {
+    id: 'exit_right_b',
+    location: `${tokenPath}exit_right_b${fileFormat}`,
+    aspectRatio: 5,
+    drawCoords,
+    itemType: 'token',
+  },
+  exit_left_b: {
+    id: 'exit_left_b',
+    location: `${tokenPath}exit_left_b${fileFormat}`,
     aspectRatio: 5,
     drawCoords,
     itemType: 'token',
@@ -54,7 +83,7 @@ export const Tokens = {
   treasure: {
     id: 'treasure',
     location: `${tokenPath}Treasure${fileFormat}`,
-    aspectRatio: 4.2,
+    aspectRatio: 4.1,
     drawCoords,
     itemType: 'token',
   },
@@ -236,14 +265,14 @@ export const Tokens = {
   thorns: {
     id: 'thorns',
     location: `${tokenPath}Thorns${fileFormat}`,
-    aspectRatio: 4.3,
+    aspectRatio: 4.6,
     drawCoords,
     itemType: 'token',
   },
   rubble: {
     id: 'rubble',
     location: `${tokenPath}Rubble${fileFormat}`,
-    aspectRatio: 4.3,
+    aspectRatio: 4,
     drawCoords,
     itemType: 'token',
   },
@@ -271,7 +300,7 @@ export const Tokens = {
   hot_coals: {
     id: 'hot_coals',
     location: `${tokenPath}Hot-Coals${fileFormat}`,
-    aspectRatio: 4.1,
+    aspectRatio: 4.6,
     drawCoords,
     itemType: 'token',
   },

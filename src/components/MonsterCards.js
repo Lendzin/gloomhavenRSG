@@ -1,8 +1,13 @@
 import {Tokens} from './Tokens'
 import {Monsters} from './Monsters'
 import {Extras} from './Extras'
+import {getRandomFromObject} from './Helpers'
 
-export const MonsterCards = {
+export const drawMonsterCard = () => {
+  return getRandomFromObject(MonsterCards)
+}
+
+const MonsterCards = {
   Archaic: {
     id: 'Archaic',
     Effects: [Extras.treasure_recoverlostcard],
@@ -89,7 +94,7 @@ export const MonsterCards = {
       {token: Monsters.night_demon, frame: 'normal'},
       {token: Tokens.empty, frame: 'none'},
       {token: Tokens.empty, frame: 'none'},
-      {token: Monsters.living_bones, frame: 'normal'},
+      {token: Monsters.living_bones, frame: 'elite'},
       {token: Monsters.cultist, frame: 'normal'},
       {token: Monsters.cultist, frame: 'normal'},
       {token: Tokens.thorns, frame: 'none'},
@@ -99,7 +104,7 @@ export const MonsterCards = {
   },
   Crushing: {
     id: 'Crushing',
-    Effects: [Extras.treasure_5gold, Extras.treasure_5gold],
+    Effects: [Extras.treasure_5gold],
     players2: [
       {token: Monsters.earth_demon, frame: 'elite'},
       {token: Monsters.wind_demon, frame: 'normal'},
@@ -424,6 +429,7 @@ export const MonsterCards = {
   },
   Hopeless: {
     id: 'Hopeless',
+    Effects: [],
     players2: [
       {token: Monsters.night_demon, frame: 'elite'},
       {token: Tokens.empty, frame: 'none'},
@@ -515,6 +521,7 @@ export const MonsterCards = {
   },
   Infected: {
     id: 'Infected',
+    Effects: [],
     players2: [
       {token: Monsters.giant_viper, frame: 'elite'},
       {token: Tokens.empty, frame: 'none'},
@@ -793,6 +800,7 @@ export const MonsterCards = {
   },
   Unstable: {
     id: 'Unstable',
+    Effects: [],
     players2: [
       {token: Monsters.savaas_lavaflow, frame: 'normal'},
       {token: Tokens.rubble, frame: 'none'},
@@ -838,7 +846,10 @@ export const MonsterCards = {
   },
   Venomous: {
     id: 'Venomous',
-    Effects: [Extras.treasure_poison_all_enemies],
+    Effects: [
+      Extras.treasure_poison_all_enemies,
+      Extras.poison_trap_stun_poison,
+    ],
     players2: [
       {token: Monsters.harrower_infester, frame: 'elite'},
       {token: Monsters.giant_viper, frame: 'normal'},
