@@ -7,6 +7,7 @@ import * as serviceWorker from './serviceWorker'
 
 ReactDOM.render(
   <React.StrictMode>
+    <meta name='viewport' content='width=1324'></meta>
     <App />
   </React.StrictMode>,
   document.getElementById('root')

@@ -6,8 +6,11 @@ import {getRandomFromObject} from './Helpers'
 export const drawScenarioCard = () => {
   return getRandomFromObject(ScenarioCards)
 }
+export const getAmountOfScenarioCards = () => {
+  return Object.keys(ScenarioCards).length
+}
 
-export const ScenarioCards = {
+const ScenarioCards = {
   Alcove: {
     id: 'Alcove',
     Tiles: [
@@ -37,8 +40,8 @@ export const ScenarioCards = {
     ],
     entries: ['B'],
     exits: ['B'],
-    minor: 'All enemies gain SHIELD[1] this round.',
-    major: 'All enemies gain SHIELD[1] permanently.',
+    minor: 'All enemies gain SHIELD 1 this round.',
+    major: 'All enemies gain SHIELD 1 permanently.',
   },
   Altar: {
     id: 'Altar',

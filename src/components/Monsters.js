@@ -1,5 +1,5 @@
 import {monsterPath} from '../config'
-const fileFormat = '.png'
+const fileFormat = '.webp'
 const drawCoords = {x: 0, y: 0}
 const aspectRatio = 4.4
 export const Monsters = {

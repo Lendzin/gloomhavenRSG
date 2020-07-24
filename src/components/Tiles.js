@@ -1,6 +1,7 @@
 import {tilePath} from '../config'
 import {TileCubeCoords} from './TileCubeCoords'
-const fileFormat = '.png'
+import {scale} from './Helpers'
+const fileFormat = '.webp'
 const tileStart = {x: 100, y: 100}
 
 export const Tiles = {

@@ -5,32 +5,20 @@ import {
   clickToCubeCoords,
   copyObject,
   allWordsStringUpperCase,
-  scale,
+  loadImage,
+  drawOutlineHexagon,
+  coordinateCheck,
 } from './components/Helpers'
-import {drawScenarioCard} from './components/ScenarioCards'
-import {drawMonsterCard} from './components/MonsterCards'
+import {
+  drawScenarioCard,
+  getAmountOfScenarioCards,
+} from './components/ScenarioCards'
+import {
+  drawMonsterCard,
+  getAmountOfMonsterCards,
+} from './components/MonsterCards'
 import {getCornersForHexagon} from './components/Helpers'
 
-const drawOutlineHexagon = (ctx, drawCoords, color, offset) => {
-  let corners = getCornersForHexagon(drawCoords)
-  ctx.beginPath()
-  corners.forEach((corner, index) => {
-    if (offset) {
-      corner.x += offset.x
-      corner.y += offset.y
-    }
-    if (index === 0) {
-      ctx.lineTo(corner.x, corner.y)
-      ctx.moveTo(corner.x, corner.y)
-    } else {
-      ctx.lineTo(corner.x, corner.y)
-      ctx.strokeStyle = color
-      ctx.lineWidth = 4
-    }
-  })
-  ctx.closePath()
-  ctx.stroke()
-}
 const drawHexagonForCorners = (corners, ctx, color, offset) => {
   ctx.beginPath()
   corners.forEach((corner, index) => {
@@ -49,37 +37,15 @@ const drawHexagonForCorners = (corners, ctx, color, offset) => {
   ctx.closePath()
 }
 
-function coordinateCheck(ctx, tile, offset) {
-  tile.gridCubeCoords.forEach((cubeCoord) => {
-    if (cubeCoord.r + cubeCoord.g + cubeCoord.b === 0) {
-      let drawCoords = getDrawCoords(cubeCoord, tile.startHexCoords)
-      ctx.font = '20px Arial'
-      ctx.fillStyle = 'yellow'
-      ctx.textAlign = 'center'
-      ctx.fillText(
-        `(${cubeCoord.r} , ${cubeCoord.g} , ${cubeCoord.b})`,
-        drawCoords.x + offset.x,
-        drawCoords.y + offset.y
-      )
-    }
-  })
-}
-
-function loadImage(imagePath) {
-  return new Promise((resolve, reject) => {
-    let image = new Image()
-    image.addEventListener('load', () => {
-      resolve(image)
-    })
-    image.addEventListener('error', (err) => {
-      reject(err)
-    })
-    image.src = imagePath
-  })
-}
-
 const validatePlayers = (players) => {
   return players === 5 ? 4 : players === 1 ? 2 : players
+}
+const validateMaxRooms = (maxRooms) => {
+  return maxRooms === getAmountOfMonsterCards() + 1
+    ? getAmountOfMonsterCards()
+    : maxRooms === 0
+    ? 1
+    : maxRooms
 }
 
 function App() {
@@ -99,14 +65,9 @@ function App() {
     window.addEventListener('resize', updateWidthAndHeight)
     return () => window.removeEventListener('resize', updateWidthAndHeight)
   })
-  useEffect(() => {
-    window.addEventListener('onresize', updateWidthAndHeight)
-    return () => window.removeEventListener('onresize', updateWidthAndHeight)
-  })
 
-  const getContextScaledCanvas = (canvas) => {
+  const getContextForCanvas = (canvas) => {
     let ctx = canvas.getContext('2d')
-    ctx.scale(scale, scale)
     return ctx
   }
 
@@ -119,6 +80,8 @@ function App() {
   const [modalState, setModalState] = useState(false)
   const [players, setPlayers] = useState(2)
   const [openMenu, setOpenMenu] = useState(false)
+  const [maxRooms, setMaxRooms] = useState(3)
+
   const addCardToUsed = (card) => {
     if (card.Tiles) {
       setUsedScenarioCards([...usedScenarioCards, card.id])
@@ -239,7 +202,7 @@ function App() {
       .then(
         tiles.forEach((tile) => {
           if (drawCubeCoords) {
-            coordinateCheck(ctx, tile.Map, tile.offset)
+            coordinateCheck(ctx, tile)
           }
         })
       )
@@ -250,27 +213,27 @@ function App() {
   }
 
   const generateNextMap = () => {
-    if (room + 1 < 4) {
+    if (room !== maxRooms) {
       let exitText = exit.toUpperCase()
       let sCard = drawScenarioCard()
-      let card = 20
+      let cards = getAmountOfScenarioCards()
       while (!sCard.entries.includes(exitText) || isCardUsed(sCard)) {
         sCard = drawScenarioCard()
-        if (card === 0) {
+        if (cards === 0) {
           break
         }
-        card--
+        cards--
       }
 
-      card = 20
+      cards = getAmountOfMonsterCards()
       resetModal()
       let mCard = drawMonsterCard()
       while (isCardUsed(mCard)) {
         mCard = drawMonsterCard()
-        if (card === 0) {
+        if (cards === 0) {
           break
         }
-        card--
+        cards--
       }
 
       addCardToUsed(mCard)
@@ -293,14 +256,14 @@ function App() {
 
   useEffect(() => {
     const canvas = canvasRef.current
-    const ctx = getContextScaledCanvas(canvas)
+    const ctx = getContextForCanvas(canvas)
     ctx.clearRect(0, 0, width, height)
     drawTiles(ctx)
   }, [monsterCard, scenarioCard, width, height])
 
   useEffect(() => {
     const canvas = canvasRefItems.current
-    const ctxitems = getContextScaledCanvas(canvas)
+    const ctxitems = getContextForCanvas(canvas)
     ctxitems.clearRect(0, 0, width, height)
     drawTileContent(ctxitems)
   }, [monsterCard, scenarioCard, players, drawCubeCoords, width, height])
@@ -315,7 +278,7 @@ function App() {
 
       const cubeCoords = clickToCubeCoords(hexCoords, currentX, currentY)
       const canvas = canvasRefOverlay.current
-      const ctxOverlay = getContextScaledCanvas(canvas)
+      const ctxOverlay = getContextForCanvas(canvas)
 
       Object.values(tile.staticRender).forEach((value) => {
         if (JSON.stringify(value.cubeCoord) === JSON.stringify(cubeCoords)) {
@@ -362,6 +325,9 @@ function App() {
             )
           } else {
             let item = allWordsStringUpperCase(value.token.id).split(' ')[0]
+            if (item === 'Entrance') {
+              item += ' ' + allWordsStringUpperCase(value.token.id.slice(-1))
+            }
             setTriggeredItem(
               <>
                 <p>{item}</p>
@@ -372,7 +338,7 @@ function App() {
 
           let drawCoords = getDrawCoords(cubeCoords, hexCoords)
 
-          drawOutlineHexagon(ctxOverlay, drawCoords, 'black', {x: 0, y: 0})
+          drawOutlineHexagon(ctxOverlay, drawCoords)
           exits.forEach((exit) => {
             if (JSON.stringify(exit.cubeCoord) === JSON.stringify(cubeCoords)) {
               setModalState(true)
@@ -393,7 +359,7 @@ function App() {
     setModalState(false)
     setExit('')
     const canvas = canvasRefOverlay.current
-    const ctxOverlay = getContextScaledCanvas(canvas)
+    const ctxOverlay = getContextForCanvas(canvas)
     ctxOverlay.clearRect(0, 0, width, height)
   }
 
@@ -437,64 +403,89 @@ function App() {
 
       <div id='menu' style={menuOpen}>
         <div className='controls'>
-          <div id='combined-card-name'>
-            <p
-              style={{fontSize: '1.5em'}}
-            >{`Room ${room}: ${monsterCard.id} ${scenarioCard.id}`}</p>
-          </div>
-          <div id='players'>
-            Players:
-            <button onClick={() => setPlayers(validatePlayers(players + 1))}>
-              +
-            </button>
-            {players}
-            <button onClick={() => setPlayers(validatePlayers(players - 1))}>
-              -
-            </button>
-          </div>
-          <div id='extras_and_effects'>
-            {scenarioCard ? (
-              <div>
-                <p style={{color: '#6db000'}}>Minor: {scenarioCard.minor}</p>{' '}
-                <p style={{color: '#02acb5'}}>Major: {scenarioCard.major}</p>
-              </div>
-            ) : (
-              <></>
-            )}
-            <div style={{height: '0.5em'}}> </div>
-            {monsterCard ? (
-              <div>
-                {monsterCard.Effects.map((effect) => {
-                  const color = effect.text.includes('trap')
-                    ? '#f57242'
-                    : '#f5d742'
-                  return (
-                    <p key={effect.text} style={{color: color}}>
-                      {effect.text}
-                    </p>
-                  )
-                })}
-              </div>
-            ) : (
-              <></>
-            )}
-            <button onClick={() => triggerOpenMenu()}>Close</button>
-          </div>
-          <div id='cubecoords-buttons' style={{display: 'none'}}>
-            <button
-              className='cubecoords-button'
-              disabled={drawCubeCoords}
-              onClick={() => setDrawCubeCoords(true)}
-            >
-              Generate CubeCoords
-            </button>
-            <button
-              className='cubecoords-button'
-              disabled={!drawCubeCoords}
-              onClick={() => setDrawCubeCoords(false)}
-            >
-              Remove CubeCoords
-            </button>
+          <div className='control-contents'>
+            <div id='combined-card-name'>
+              <p>{`Room ${room}: ${monsterCard.id} ${scenarioCard.id}`}</p>
+            </div>
+            <div id='players'>
+              Players:
+              <button onClick={() => setPlayers(validatePlayers(players + 1))}>
+                +
+              </button>
+              {players}
+              <button onClick={() => setPlayers(validatePlayers(players - 1))}>
+                -
+              </button>
+              {'< Standard: 2-4 >'}
+            </div>
+            <div id='rooms'>
+              Rooms:
+              <button
+                id='rooms_plusbutton'
+                onClick={() => setMaxRooms(validateMaxRooms(maxRooms + 1))}
+              >
+                +
+              </button>
+              {maxRooms}
+              <button
+                onClick={() => setMaxRooms(validateMaxRooms(maxRooms - 1))}
+              >
+                -
+              </button>
+              {'< Standard: 3 >'}
+            </div>
+            <div id='extras_and_effects'>
+              {scenarioCard ? (
+                <div>
+                  <p style={{color: '#6db000'}}>Minor: {scenarioCard.minor}</p>{' '}
+                  <p style={{color: '#02acb5'}}>Major: {scenarioCard.major}</p>
+                </div>
+              ) : (
+                <></>
+              )}
+              {monsterCard ? (
+                <div>
+                  {monsterCard.Effects.map((effect) => {
+                    const color = effect.text.includes('trap')
+                      ? '#f57242'
+                      : '#f5d742'
+                    return (
+                      <p key={effect.text} style={{color: color}}>
+                        {effect.text}
+                      </p>
+                    )
+                  })}
+                </div>
+              ) : (
+                <></>
+              )}
+              <button id='close_button' onClick={() => triggerOpenMenu()}>
+                Close
+              </button>
+              <p id='license_text'>
+                {' '}
+                Content provided by Cephalofair Games with BY-NC-SA 4.0 license:{' '}
+                <a href='https://drive.google.com/open?id=1A3Budnzy2L225DvVQY9_9z2HvvXb3Bio'>
+                  here
+                </a>
+              </p>
+            </div>
+            <div id='cubecoords-buttons' style={{display: 'none'}}>
+              <button
+                className='cubecoords-button'
+                disabled={drawCubeCoords}
+                onClick={() => setDrawCubeCoords(true)}
+              >
+                Generate CubeCoords
+              </button>
+              <button
+                className='cubecoords-button'
+                disabled={!drawCubeCoords}
+                onClick={() => setDrawCubeCoords(false)}
+              >
+                Remove CubeCoords
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -504,7 +495,7 @@ function App() {
           triggerOpenMenu()
         }}
       >
-        MENU
+        SETTINGS
       </button>
 
       <div id='myModal' className='modal' style={modalOpen}>

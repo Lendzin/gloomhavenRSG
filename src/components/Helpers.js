@@ -1,5 +1,3 @@
-export const scale = 1
-
 const hexagonSize = 60
 
 export const getRandomFromObject = (object) => {
@@ -80,4 +78,52 @@ export const allWordsStringUpperCase = (str) => {
     builtStr += str.charAt(0).toUpperCase() + str.slice(1) + ' '
   })
   return builtStr
+}
+
+export const loadImage = (imagePath) => {
+  return new Promise((resolve, reject) => {
+    let image = new Image()
+    image.addEventListener('load', () => {
+      resolve(image)
+    })
+    image.addEventListener('error', (err) => {
+      reject(err)
+    })
+    image.src = imagePath
+  })
+}
+
+export const drawOutlineHexagon = (ctx, drawCoords) => {
+  let corners = getCornersForHexagon(drawCoords)
+  ctx.beginPath()
+  corners.forEach((corner, index) => {
+    if (index === 0) {
+      ctx.lineTo(corner.x, corner.y)
+      ctx.moveTo(corner.x, corner.y)
+    } else {
+      ctx.lineTo(corner.x, corner.y)
+      ctx.strokeStyle = 'black'
+      ctx.lineWidth = 4
+    }
+  })
+  ctx.closePath()
+  ctx.stroke()
+}
+
+export const coordinateCheck = (ctx, tile) => {
+  const map = tile.Map
+  const offset = tile.offset
+  map.gridCubeCoords.forEach((cubeCoord) => {
+    if (cubeCoord.r + cubeCoord.g + cubeCoord.b === 0) {
+      let drawCoords = getDrawCoords(cubeCoord, map.startHexCoords)
+      ctx.font = '20px Arial'
+      ctx.fillStyle = 'yellow'
+      ctx.textAlign = 'center'
+      ctx.fillText(
+        `(${cubeCoord.r} , ${cubeCoord.g} , ${cubeCoord.b})`,
+        drawCoords.x + offset.x,
+        drawCoords.y + offset.y
+      )
+    }
+  })
 }

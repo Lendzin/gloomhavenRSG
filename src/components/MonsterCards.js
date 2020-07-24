@@ -6,6 +6,9 @@ import {getRandomFromObject} from './Helpers'
 export const drawMonsterCard = () => {
   return getRandomFromObject(MonsterCards)
 }
+export const getAmountOfMonsterCards = () => {
+  return Object.keys(MonsterCards).length
+}
 
 const MonsterCards = {
   Archaic: {
