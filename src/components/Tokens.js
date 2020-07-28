@@ -1,5 +1,5 @@
 import {tokenPath} from '../config'
-const fileFormat = '.webp'
+const fileFormat = ''
 const drawCoords = {x: 0, y: 0}
 
 export const Tokens = {

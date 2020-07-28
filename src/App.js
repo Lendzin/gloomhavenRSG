@@ -52,9 +52,27 @@ function App() {
   const canvasRef = useRef(null)
   const canvasRefItems = useRef(null)
   const canvasRefOverlay = useRef(null)
+  const storedItem = localStorage.getItem('glooomhaven-app')
+  console.log(storedItem)
+  const appState = storedItem ? JSON.parse(storedItem) : {}
 
-  const [width, setWidth] = useState(window.innerWidth)
-  const [height, setHeight] = useState(window.innerHeight)
+  const saveAppState = () => {
+    const appState = {
+      fileFormat,
+      room,
+      usedScenarioCards,
+      usedMonsterCards,
+      players,
+      maxRooms,
+      monsterCard,
+      scenarioCard,
+      exits,
+    }
+    localStorage.setItem('glooomhaven-app', JSON.stringify(appState))
+  }
+
+  const [width, setWidth] = useState(window.innerWidth * 2)
+  const [height, setHeight] = useState(window.innerHeight * 2)
 
   const updateWidthAndHeight = () => {
     setWidth(window.innerWidth)
@@ -67,20 +85,45 @@ function App() {
   })
 
   const getContextForCanvas = (canvas) => {
-    let ctx = canvas.getContext('2d')
-    return ctx
+    let context = canvas.getContext('2d')
+    return context
+  }
+  const cleanContext = (ctx) => {
+    ctx.clearRect(0, 0, width, height)
   }
 
-  const [room, setRoom] = useState(1)
-  const [usedScenarioCards, setUsedScenarioCards] = useState([])
-  const [usedMonsterCards, setUsedMonsterCards] = useState([])
+  const [fileFormat, setFileFormat] = useState(appState.fileFormat || '')
+  const [room, setRoom] = useState(appState.room || 1)
+  const [usedScenarioCards, setUsedScenarioCards] = useState(
+    appState.usedScenarioCards || []
+  )
+  const [usedMonsterCards, setUsedMonsterCards] = useState(
+    appState.usedMonsterCards || []
+  )
   const [triggeredItem, setTriggeredItem] = useState('No Item')
   const [mouseLocation, setMouseLocation] = useState({x: 0, y: 0})
   const [exit, setExit] = useState('')
   const [modalState, setModalState] = useState(false)
-  const [players, setPlayers] = useState(2)
+  const [players, setPlayers] = useState(appState.players || 2)
   const [openMenu, setOpenMenu] = useState(false)
-  const [maxRooms, setMaxRooms] = useState(3)
+  const [maxRooms, setMaxRooms] = useState(appState.rooms || 3)
+
+  const canUseWebP = () => {
+    var elem = document.createElement('canvas')
+
+    if (!!(elem.getContext && elem.getContext('2d'))) {
+      // was able or not to get WebP representation
+      return elem.toDataURL('image/webp').indexOf('data:image/webp') === 0
+    }
+
+    // very old browser like IE 8, canvas not supported
+    return false
+  }
+
+  const pickFileFormat = () => {
+    let fileFormat = canUseWebP() ? '.webp' : '.png'
+    setFileFormat(fileFormat)
+  }
 
   const addCardToUsed = (card) => {
     if (card.Tiles) {
@@ -91,15 +134,15 @@ function App() {
     return card
   }
 
-  const [monsterCard, setMonsterCard] = useState(() =>
-    addCardToUsed(drawMonsterCard())
-  )
-  const [scenarioCard, setScenarioCard] = useState(() =>
-    addCardToUsed(drawScenarioCard())
-  )
+  const [monsterCard, setMonsterCard] = useState(() => {
+    return appState.monsterCard || addCardToUsed(drawMonsterCard())
+  })
+  const [scenarioCard, setScenarioCard] = useState(() => {
+    return appState.scenarioCard || addCardToUsed(drawScenarioCard())
+  })
 
   const [drawCubeCoords, setDrawCubeCoords] = useState(false)
-  const [exits, setExits] = useState([])
+  const [exits, setExits] = useState(appState.exits || [])
 
   const drawHexagon = (ctx, drawCoords, color, offset) => {
     let corners = getCornersForHexagon(drawCoords)
@@ -123,7 +166,10 @@ function App() {
       tileSources.push(mapImage)
     })
     Promise.all(
-      tileSources.map((imageSource) => loadImage(imageSource.location))
+      tileSources.map((imageSource) => {
+        let fileFormatToUse = fileFormat === '.png' ? '.jpg' : fileFormat // tiles too huge to use .png although makes some combos look funky
+        return loadImage(imageSource.location + fileFormatToUse)
+      })
     )
       .then((images) => {
         images.forEach((image, index) => {
@@ -145,6 +191,7 @@ function App() {
   }
 
   const drawTileContent = (ctx) => {
+    saveAppState()
     let imageSources = []
     const tiles = scenarioCard.Tiles
     tiles.forEach((tile) => {
@@ -170,7 +217,9 @@ function App() {
       })
     })
     Promise.all(
-      imageSources.map((imageSource) => loadImage(imageSource.location))
+      imageSources.map((imageSource) =>
+        loadImage(imageSource.location + fileFormat)
+      )
     )
       .then((images) => {
         let exitsInsideImages = []
@@ -255,18 +304,30 @@ function App() {
   }
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    const ctx = getContextForCanvas(canvas)
-    ctx.clearRect(0, 0, width, height)
-    drawTiles(ctx)
-  }, [monsterCard, scenarioCard, width, height])
+    if (fileFormat) {
+      const canvas = canvasRef.current
+      const ctx = getContextForCanvas(canvas)
+      cleanContext(ctx)
+      drawTiles(ctx)
+    }
+  }, [monsterCard, scenarioCard, width, height, fileFormat])
 
   useEffect(() => {
-    const canvas = canvasRefItems.current
-    const ctxitems = getContextForCanvas(canvas)
-    ctxitems.clearRect(0, 0, width, height)
-    drawTileContent(ctxitems)
-  }, [monsterCard, scenarioCard, players, drawCubeCoords, width, height])
+    if (fileFormat) {
+      const canvas = canvasRefItems.current
+      const ctxItems = getContextForCanvas(canvas)
+      cleanContext(ctxItems)
+      drawTileContent(ctxItems)
+    }
+  }, [
+    monsterCard,
+    scenarioCard,
+    players,
+    drawCubeCoords,
+    width,
+    height,
+    fileFormat,
+  ])
 
   const handleCanvasClick = (xIn, yIn) => {
     scenarioCard.Tiles.forEach((tile) => {
@@ -360,7 +421,7 @@ function App() {
     setExit('')
     const canvas = canvasRefOverlay.current
     const ctxOverlay = getContextForCanvas(canvas)
-    ctxOverlay.clearRect(0, 0, width, height)
+    cleanContext(ctxOverlay)
   }
 
   const resetApplication = () => {
@@ -379,27 +440,24 @@ function App() {
     : {display: 'none'}
   return (
     <>
-      {width > 0 && height > 0 ? (
-        <div id='stack'>
-          <canvas ref={canvasRef} width={width} height={height}></canvas>
-          <canvas ref={canvasRefItems} width={width} height={height}></canvas>
-          <canvas
-            ref={canvasRefOverlay}
-            width={width}
-            height={height}
-            onMouseDown={(event) => {
-              const x = event.clientX
-              const y = event.clientY
-              console.log(width, height)
-              setMouseLocation({x: x, y: y})
-              resetModal()
-              handleCanvasClick(x, y)
-            }}
-          ></canvas>
-        </div>
-      ) : (
-        <>Loading..</>
-      )}
+      {fileFormat ? <></> : pickFileFormat()}
+      <div id='stack'>
+        <canvas ref={canvasRef} width={width} height={height}></canvas>
+        <canvas ref={canvasRefItems} width={width} height={height}></canvas>
+
+        <canvas
+          ref={canvasRefOverlay}
+          width={width}
+          height={height}
+          onMouseDown={(event) => {
+            const x = event.clientX
+            const y = event.clientY
+            setMouseLocation({x: x, y: y})
+            resetModal()
+            handleCanvasClick(x, y)
+          }}
+        ></canvas>
+      </div>
 
       <div id='menu' style={menuOpen}>
         <div className='controls'>
@@ -459,7 +517,10 @@ function App() {
               ) : (
                 <></>
               )}
-              <button id='close_button' onClick={() => triggerOpenMenu()}>
+              <button className='close' onClick={() => resetApplication()}>
+                Reset
+              </button>
+              <button className='close' onClick={() => triggerOpenMenu()}>
                 Close
               </button>
               <p id='license_text'>
